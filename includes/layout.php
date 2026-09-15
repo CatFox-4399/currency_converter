@@ -20,6 +20,7 @@ function pageHeader(string $title, string $desc, string $page = 'index'): void
 {
     $appName = APP_NAME;
     $fullTitle = $title . ' — ' . $appName;
+    $base = getBaseUrl();
 ?>
 <!DOCTYPE html>
 <html lang="en" data-lang="en">
@@ -33,7 +34,7 @@ function pageHeader(string $title, string $desc, string $page = 'index'): void
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
+  <link rel="stylesheet" href="<?= $base ?>/assets/css/style.css">
   <!-- Favicon inline SVG -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💱</text></svg>">
 </head>
@@ -41,21 +42,21 @@ function pageHeader(string $title, string $desc, string $page = 'index'): void
 
 <header class="site-header">
   <div class="container">
-    <a href="<?= BASE_URL ?>/" class="logo" id="logo-link">
+    <a href="<?= $base ?>/" class="logo" id="logo-link">
       <span class="logo-icon">💱</span>
       <span class="logo-text"><?= e($appName) ?></span>
     </a>
 
     <nav class="main-nav" role="navigation" aria-label="Main navigation">
-      <a href="<?= BASE_URL ?>/"
+      <a href="<?= $base ?>/"
          class="nav-link <?= $page === 'index'  ? 'active' : '' ?>"
          id="nav-converter"
          data-i18n="nav_converter">Converter</a>
-      <a href="<?= BASE_URL ?>/rates.php"
+      <a href="<?= $base ?>/rates.php"
          class="nav-link <?= $page === 'rates'  ? 'active' : '' ?>"
          id="nav-rates"
          data-i18n="nav_rates">Rates</a>
-      <a href="<?= BASE_URL ?>/manual.php"
+      <a href="<?= $base ?>/manual.php"
          class="nav-link <?= $page === 'manual' ? 'active' : '' ?>"
          id="nav-manual"
          data-i18n="nav_manual">Manual</a>
@@ -86,6 +87,7 @@ function pageFooter(array $extraScripts = []): void
 {
     $year = date('Y');
     $appName = APP_NAME;
+    $base = getBaseUrl();
 ?>
 </main>
 
@@ -101,9 +103,9 @@ function pageFooter(array $extraScripts = []): void
   </div>
 </footer>
 
-<script>window.CX_BASE = '<?= BASE_URL ?>';</script>
-<script src="<?= BASE_URL ?>/assets/js/i18n.js"></script>
-<script src="<?= BASE_URL ?>/assets/js/app.js"></script>
+<script>window.CX_BASE = '<?= $base ?>';</script>
+<script src="<?= $base ?>/assets/js/i18n.js"></script>
+<script src="<?= $base ?>/assets/js/app.js"></script>
 <?php foreach ($extraScripts as $src): ?>
 <script src="<?= e($src) ?>"></script>
 <?php endforeach; ?>

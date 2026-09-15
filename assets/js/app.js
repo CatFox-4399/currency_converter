@@ -13,8 +13,10 @@
 
 'use strict';
 
-// Dynamic base URL (set by PHP in layout.php)
-const BASE = window.CX_BASE || '';
+// Dynamic base URL (set by PHP in layout.php with fallback to current URL path)
+const BASE = (typeof window.CX_BASE === 'string' && window.CX_BASE !== '')
+  ? window.CX_BASE
+  : (window.location.pathname.startsWith('/currency_converter') ? '/currency_converter' : '');
 
 // ══════════════════════════════════════════════════════════════
 // 1. Navigation — Mobile menu toggle

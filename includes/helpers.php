@@ -192,3 +192,56 @@ function periodToDates(string $period): array
         'step'  => $step,
     ];
 }
+
+// ── Routing & URL Helpers ─────────────────────────────────────
+
+/**
+ * Automatically determine the base URL path of the application.
+ * Returns '' when deployed at web root (e.g. localhost:8080),
+ * or '/currency_converter' when deployed under a subfolder.
+ */
+function getBaseUrl(): string
+{
+    // 1. If BASE_URL constant is defined and non-empty, use it
+    if (defined('BASE_URL') && BASE_URL !== '') {
+        return rtrim(BASE_URL, '/');
+    }
+
+    // 2. Detect from SCRIPT_NAME (e.g. /currency_converter/index.php)
+    if (!empty($_SERVER['SCRIPT_NAME'])) {
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        $dir = rtrim(dirname($script), '/\\');
+        if ($dir !== '' && $dir !== '.' && $dir !== '/') {
+            // Strip any subdirectories if called from api/ or includes/
+            $dir = preg_replace('#/(?:api|assets|includes)$#i', '', $dir);
+            if ($dir !== '' && $dir !== '/') {
+                return $dir;
+            }
+        }
+    }
+
+    // 3. Fallback check from REQUEST_URI
+    if (!empty($_SERVER['REQUEST_URI'])) {
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '';
+        if (preg_match('#^(/[^/]+)#', $path, $m)) {
+            if (strtolower($m[1]) === '/currency_converter') {
+                return $m[1];
+            }
+        }
+    }
+
+    // 4. Document root vs App root comparison
+    if (!empty($_SERVER['DOCUMENT_ROOT']) && defined('APP_ROOT')) {
+        $doc = rtrim(str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT']) ?: $_SERVER['DOCUMENT_ROOT']), '/');
+        $app = rtrim(str_replace('\\', '/', realpath(APP_ROOT) ?: APP_ROOT), '/');
+        if (str_starts_with($app, $doc)) {
+            $sub = substr($app, strlen($doc));
+            if ($sub !== '' && $sub !== false) {
+                return '/' . trim(str_replace('\\', '/', $sub), '/');
+            }
+        }
+    }
+
+    return '';
+}
+
