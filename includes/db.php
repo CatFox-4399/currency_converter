@@ -19,9 +19,15 @@ class Database
     public static function getInstance(): PDO
     {
         if (self::$instance === null) {
+            $charset = defined('DB_CHARSET') ? DB_CHARSET : 'utf8mb4';
+            $host    = defined('DB_HOST')    ? DB_HOST    : 'localhost';
+            $name    = defined('DB_NAME')    ? DB_NAME    : 'currency_converter';
+            $user    = defined('DB_USER')    ? DB_USER    : 'root';
+            $pass    = defined('DB_PASS')    ? DB_PASS    : '';
+
             $dsn = sprintf(
                 'mysql:host=%s;dbname=%s;charset=%s',
-                DB_HOST, DB_NAME, DB_CHARSET
+                $host, $name, $charset
             );
             $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -30,7 +36,7 @@ class Database
                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci',
             ];
             try {
-                self::$instance = new PDO($dsn, DB_USER, DB_PASS, $options);
+                self::$instance = new PDO($dsn, $user, $pass, $options);
                 self::ensureSchema(self::$instance);
             } catch (PDOException $e) {
                 error_log('[CurrencyX] DB connection failed: ' . $e->getMessage());
