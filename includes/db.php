@@ -31,6 +31,7 @@ class Database
             ];
             try {
                 self::$instance = new PDO($dsn, DB_USER, DB_PASS, $options);
+                self::ensureSchema(self::$instance);
             } catch (PDOException $e) {
                 error_log('[CurrencyX] DB connection failed: ' . $e->getMessage());
                 http_response_code(503);
@@ -43,6 +44,30 @@ class Database
             }
         }
         return self::$instance;
+    }
+
+    /**
+     * Automatically initialize tables from schema.sql if not present.
+     */
+    private static function ensureSchema(PDO $pdo): void
+    {
+        try {
+            $check = $pdo->query("SHOW TABLES LIKE 'currencies'");
+            if ($check && $check->fetch()) {
+                return; // Tables already exist
+            }
+            $schemaFile = __DIR__ . '/schema.sql';
+            if (!file_exists($schemaFile)) {
+                return;
+            }
+            $sql = file_get_contents($schemaFile);
+            // Remove comments and multi-database commands
+            $sql = preg_replace('/CREATE\s+DATABASE[^;]+;/i', '', $sql);
+            $sql = preg_replace('/USE\s+[^;]+;/i', '', $sql);
+            $pdo->exec($sql);
+        } catch (Throwable $t) {
+            error_log('[CurrencyX] Schema auto-init warning: ' . $t->getMessage());
+        }
     }
 }
 
